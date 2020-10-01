@@ -1,0 +1,35 @@
+version: "3.7"
+services: 
+  mongodb: 
+    container_name: mongo
+    image: mongo
+    volumes: 
+      - ./db_data/:/data/db/
+    ports: 
+      - 27017:27017
+    restart: always
+    networks:
+        static-network:
+            ipv4_address: ${HOST}
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://172.20.69.2:15672"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  kotlin:
+    container_name: kotlin
+    build: ./app/
+    depends_on:
+        - mongodb
+    networks:
+        static-network:
+            ipv4_address: 172.20.69.3
+
+
+networks:
+  static-network:
+    ipam:
+      config:
+        - subnet: ${SUBNET}
+
